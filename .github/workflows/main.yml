@@ -22,7 +22,7 @@ jobs:
           gradle-version: '8.2'
 
       - name: Build AAB
-        run: gradle :app:bundleRelease --no-daemon --stacktrace
+        run: gradle :app:bundleRelease --no-daemon --stacktrace 2>&1 | head -150
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4

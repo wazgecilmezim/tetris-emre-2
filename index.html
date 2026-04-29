@@ -2,540 +2,736 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TETRİS - Emre Kaftar</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --bg: #050a14;
+            --panel: rgba(8, 18, 38, 0.92);
+            --neon-blue: #00d4ff;
+            --neon-purple: #b44fff;
+            --neon-yellow: #ffe800;
+            --btn-bg: #0d1f3c;
+            --btn-shadow: #020810;
+        }
+
         * {
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             box-sizing: border-box;
-        }
-
-        body {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #0a0f1e 0%, #0a1a2f 100%);
-            font-family: 'Segoe UI', 'Poppins', sans-serif;
-            touch-action: manipulation;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* TEK SAYFA - KAYDIRMA YOK */
+            background: var(--bg);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Arka plan animasyonu */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 20% 20%, rgba(0,212,255,0.07) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(180,79,255,0.07) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ANA YAPI: flex column, tam ekran */
+        #app {
+            position: fixed;
+            inset: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-        }
-
-        /* TEK SAYFA - KAYDIRMA YOK */
-        .game-container {
-            width: 100%;
-            max-width: 420px;
-            margin: 0 auto;
-            padding: 10px;
-        }
-
-        .game-panel {
-            background: rgba(10, 20, 40, 0.6);
-            backdrop-filter: blur(8px);
-            border-radius: 32px;
-            padding: 16px;
-        }
-
-        /* Oyun alanı ve bilgi paneli yan yana DEĞİL, ALT ALTA */
-        .board-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 16px;
-        }
-
-        canvas#boardCanvas {
-            background-color: #0a0e1c;
-            border-radius: 20px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 300px;
-            height: auto;
-        }
-
-        /* Bilgi paneli - oyun tahtasının altında */
-        .info-area {
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+            padding: env(safe-area-inset-top, 6px) env(safe-area-inset-right, 6px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 6px);
+            padding-top: max(env(safe-area-inset-top), 6px);
+            padding-bottom: max(env(safe-area-inset-bottom), 6px);
+            z-index: 1;
         }
 
-        .score-card {
-            background: linear-gradient(135deg, #1a1a3e, #0a0a2e);
-            border-radius: 24px;
-            padding: 10px 20px;
-            text-align: center;
-            flex: 1;
-        }
-
-        .score-label {
-            color: #8ab3ff;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .score-value {
-            color: #f2ea7f;
-            font-size: 32px;
-            font-weight: 800;
-        }
-
-        .next-card {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 20px;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .next-label {
-            color: #a0c4ff;
-            font-size: 11px;
-        }
-
-        canvas#nextCanvas {
-            background-color: #0a0e1c;
-            border-radius: 12px;
-            width: 80px;
-            height: 80px;
-        }
-
-        /* BUTONLAR - TEK SATIR, BÜYÜK, KOLAY TIKLAMA */
-        .controls {
+        /* HEADER */
+        .header {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 360px;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(13px, 3.5vw, 18px);
+            font-weight: 900;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+        }
+
+        .score-block {
+            text-align: right;
+        }
+
+        .score-lbl {
+            font-size: 9px;
+            color: var(--neon-blue);
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
+        .score-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(18px, 5vw, 28px);
+            font-weight: 900;
+            color: var(--neon-yellow);
+            line-height: 1;
+            text-shadow: 0 0 12px rgba(255,232,0,0.6);
+        }
+
+        /* ORTA ALAN: board + next yan yana */
+        .mid-row {
+            display: flex;
+            align-items: flex-start;
             justify-content: center;
-            gap: 12px;
-            margin: 16px 0;
-            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        /* OYUN TAHTASI */
+        .board-wrap {
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        #boardCanvas {
+            display: block;
+            border-radius: 10px;
+            box-shadow:
+                0 0 0 1px rgba(0,212,255,0.3),
+                0 0 24px rgba(0,212,255,0.12),
+                inset 0 0 30px rgba(0,0,0,0.6);
+            image-rendering: pixelated;
+        }
+
+        /* SAĞ PANEL: next + level/status */
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-start;
+            flex-shrink: 0;
+        }
+
+        .mini-card {
+            background: var(--panel);
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 10px;
+            padding: 6px 8px;
+            text-align: center;
+            width: 72px;
+        }
+
+        .mini-lbl {
+            font-size: 8px;
+            color: var(--neon-blue);
+            letter-spacing: 1.5px;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+
+        #nextCanvas {
+            border-radius: 6px;
+            background: #060e1c;
+        }
+
+        .level-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--neon-purple);
+            text-shadow: 0 0 10px rgba(180,79,255,0.6);
+        }
+
+        .lines-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #6fcf97;
+        }
+
+        /* STATUS BAR */
+        .status-bar {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--neon-yellow);
+            opacity: 0.85;
+            text-align: center;
+            flex-shrink: 0;
+            height: 14px;
+        }
+
+        /* KONTROL BUTONLARI */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 360px;
+            flex-shrink: 0;
         }
 
         .ctrl-btn {
-            background: linear-gradient(145deg, #2a3a5a, #1a2a4a);
-            border: none;
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            width: 70px;
-            height: 70px;
-            border-radius: 50px;
-            box-shadow: 0 6px 0 #0a101c;
+            background: linear-gradient(160deg, #162240, var(--btn-bg));
+            border: 1px solid rgba(0,212,255,0.2);
+            border-bottom: 3px solid var(--btn-shadow);
+            color: #c8e6ff;
+            font-size: clamp(18px, 5vw, 24px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: 0.03s linear;
-            touch-action: manipulation;
+            transition: transform 0.05s, box-shadow 0.05s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 6px rgba(0,212,255,0.06);
+            -webkit-tap-highlight-color: transparent;
+            /* height otomatik hesaplanacak */
+            aspect-ratio: 1;
         }
 
         .ctrl-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 3px 0 #0a101c;
+            transform: translateY(2px);
+            border-bottom-width: 1px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            background: linear-gradient(160deg, #1e3060, #0f1a30);
         }
 
         .restart-btn {
-            background: linear-gradient(145deg, #ff6b4a, #e05530);
-            color: white;
-            padding: 14px;
-            border-radius: 50px;
-            font-weight: bold;
-            border: none;
-            font-size: 18px;
-            width: 100%;
+            background: linear-gradient(135deg, #c1440e, #e85522);
+            border: 1px solid rgba(255,100,50,0.4);
+            border-bottom: 3px solid #6a1a00;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(10px, 3vw, 13px);
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
             cursor: pointer;
-            margin-top: 8px;
+            grid-column: span 1;
+            aspect-ratio: 1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        .game-status {
-            text-align: center;
-            margin-top: 12px;
-            font-weight: bold;
-            color: #ffd966;
-            background: #00000055;
-            border-radius: 60px;
-            padding: 8px;
-            font-size: 14px;
+        .restart-btn:active {
+            transform: translateY(2px);
+            border-bottom-width: 1px;
         }
 
         footer {
+            font-size: 8px;
+            color: rgba(100,140,180,0.5);
+            letter-spacing: 2px;
             text-align: center;
-            font-size: 11px;
-            color: #6c8db0;
-            margin-top: 12px;
-        }
-
-        @media (max-width: 450px) {
-            .ctrl-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
-            }
-            .score-value {
-                font-size: 28px;
-            }
+            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <div class="game-panel">
-        <!-- Oyun Tahtası -->
-        <div class="board-wrapper">
-            <canvas id="boardCanvas" width="300" height="600"></canvas>
-        </div>
+<div id="app">
 
-        <!-- Skor ve Sıradaki (YAN YANA AMA MOBİLDE ALT ALTA) -->
-        <div class="info-area">
-            <div class="score-card">
-                <div class="score-label">🎯 SKOR</div>
-                <div class="score-value" id="scoreDisplay">0</div>
-            </div>
-            <div class="next-card">
-                <div class="next-label">🔮 SIRADAKİ</div>
-                <canvas id="nextCanvas" width="120" height="120"></canvas>
-            </div>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">TETRIS</div>
+        <div class="score-block">
+            <div class="score-lbl">SKOR</div>
+            <div class="score-val" id="scoreDisplay">0</div>
         </div>
-
-        <!-- Kontrol Butonları - TEK SATIR -->
-        <div class="controls">
-            <button class="ctrl-btn" id="moveLeft">◀</button>
-            <button class="ctrl-btn" id="moveRight">▶</button>
-            <button class="ctrl-btn" id="rotateBtn">🔄</button>
-            <button class="ctrl-btn" id="hardDropBtn">⬇⬇</button>
-        </div>
-
-        <button class="restart-btn" id="restartBtn">🔄 YENİ OYUN</button>
-        <div class="game-status" id="gameStatusText">▶ OYNANIYOR</div>
-        <footer>🎮 EMRE KAFTAR TETRİS™</footer>
     </div>
+
+    <!-- ORTA -->
+    <div class="mid-row">
+        <div class="board-wrap">
+            <canvas id="boardCanvas"></canvas>
+        </div>
+        <div class="side-panel">
+            <div class="mini-card">
+                <div class="mini-lbl">SONRAKİ</div>
+                <canvas id="nextCanvas" width="56" height="56"></canvas>
+            </div>
+            <div class="mini-card">
+                <div class="mini-lbl">SEVİYE</div>
+                <div class="level-val" id="levelDisplay">1</div>
+            </div>
+            <div class="mini-card">
+                <div class="mini-lbl">SATIR</div>
+                <div class="lines-val" id="linesDisplay">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="status-bar" id="gameStatusText">▶ OYNANIYOR</div>
+
+    <!-- KONTROLLER -->
+    <div class="controls">
+        <button class="ctrl-btn" id="moveLeft" aria-label="Sol">◀</button>
+        <button class="ctrl-btn" id="rotateBtn" aria-label="Döndür">↻</button>
+        <button class="ctrl-btn" id="moveRight" aria-label="Sağ">▶</button>
+        <button class="ctrl-btn" id="hardDropBtn" aria-label="Hızlı düş">⬇</button>
+        <button class="restart-btn" id="restartBtn" aria-label="Yeniden">↺</button>
+    </div>
+
+    <footer>EMRE KAFTAR TETRİS™</footer>
 </div>
 
 <script>
-    (function(){
-        const BOARD_WIDTH = 10;
-        const BOARD_HEIGHT = 20;
-        let board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
-        let score = 0;
-        let activePiece = null;
-        let gameLoopInterval = null;
-        let isGameOver = false;
+(function(){
+    const BOARD_WIDTH = 10;
+    const BOARD_HEIGHT = 20;
 
-        // SES EFEKTLERİ
-        let audioCtx = null;
-        
-        function initAudio() {
-            if(audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // === BOYUTLARI DİNAMİK HESAPLA ===
+    function calcSizes() {
+        const appEl = document.getElementById('app');
+        const appH = appEl.clientHeight;
+        const appW = appEl.clientWidth;
+
+        // Dikey: header ~36, status ~20, controls ~(btn*1 + gap), footer ~16, paddings
+        // Yatay: board + side(72+8)
+        const sideW = 80; // yan panel + gap
+        const maxBoardW = Math.min(appW - sideW - 24, 300);
+
+        // Her blok için: board genişliği / 10
+        let bSize = Math.floor(maxBoardW / BOARD_WIDTH);
+
+        // Dikey kısıt: kullanılabilir yükseklik hesapla
+        const headerH = 40;
+        const statusH = 20;
+        const ctrlH = Math.min(Math.floor((appW - 24) / 5), 56);
+        const footerH = 16;
+        const gaps = 12 * 4;
+        const availH = appH - headerH - statusH - ctrlH - footerH - gaps;
+        const maxBSize = Math.floor(availH / BOARD_HEIGHT);
+
+        bSize = Math.min(bSize, maxBSize, 28);
+        bSize = Math.max(bSize, 18);
+        return bSize;
+    }
+
+    let blockSize = calcSizes();
+    const boardCanvas = document.getElementById('boardCanvas');
+    const boardCtx = boardCanvas.getContext('2d');
+    const nextCanvas = document.getElementById('nextCanvas');
+    const nextCtx = nextCanvas.getContext('2d');
+
+    function resizeCanvas() {
+        blockSize = calcSizes();
+        boardCanvas.width = BOARD_WIDTH * blockSize;
+        boardCanvas.height = BOARD_HEIGHT * blockSize;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); drawAll(); });
+
+    // === OYUN STATE ===
+    let board = Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(0));
+    let score = 0;
+    let totalLines = 0;
+    let level = 1;
+    let activePiece = null;
+    let nextTetromino = null;
+    let gameLoopInterval = null;
+    let isGameOver = false;
+
+    // === SES ===
+    let audioCtx = null;
+    function initAudio() {
+        if (audioCtx) return;
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+    }
+    function beep(freq, duration, vol, type) {
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = type || 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol || 0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSound(type) {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        if (type === 'move') {
+            beep(330, 0.05, 0.06, 'square');
+        } else if (type === 'rotate') {
+            beep(660, 0.07, 0.07, 'sine');
+            setTimeout(() => beep(880, 0.05, 0.05, 'sine'), 50);
+        } else if (type === 'drop') {
+            beep(180, 0.1, 0.1, 'square');
+            setTimeout(() => beep(120, 0.15, 0.08, 'square'), 80);
+        } else if (type === 'clear') {
+            // Artan melodi
+            [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => beep(f, 0.15, 0.1, 'sine'), i * 60));
+        } else if (type === 'tetris') {
+            // Tetris (4 satır) için özel ses
+            [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => beep(f, 0.18, 0.13, 'triangle'), i * 55));
+        } else if (type === 'levelup') {
+            [440, 554, 659, 880].forEach((f, i) => setTimeout(() => beep(f, 0.12, 0.1, 'sine'), i * 70));
+        } else if (type === 'gameover') {
+            [440, 392, 349, 294, 220].forEach((f, i) => setTimeout(() => beep(f, 0.25, 0.15, 'sawtooth'), i * 120));
         }
-        
-        function playSound(type) {
-            try {
-                if(!audioCtx) return;
-                const now = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.type = 'sine';
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.exponentialRampToValueAtTime(0.00001, now + 0.4);
-                
-                if(type === 'drop') {
-                    osc.frequency.value = 220;
-                    osc.start();
-                    osc.stop(now + 0.2);
-                } else if(type === 'clear') {
-                    osc.frequency.value = 523.25;
-                    osc.start();
-                    osc.stop(now + 0.25);
-                    setTimeout(() => {
-                        const osc2 = audioCtx.createOscillator();
-                        const gain2 = audioCtx.createGain();
-                        osc2.connect(gain2);
-                        gain2.connect(audioCtx.destination);
-                        osc2.frequency.value = 659.25;
-                        gain2.gain.setValueAtTime(0.12, now + 0.15);
-                        gain2.gain.exponentialRampToValueAtTime(0.00001, now + 0.5);
-                        osc2.start();
-                        osc2.stop(now + 0.4);
-                    }, 120);
-                } else if(type === 'rotate') {
-                    osc.frequency.value = 880;
-                    gain.gain.setValueAtTime(0.08, now);
-                    osc.start();
-                    osc.stop(now + 0.1);
-                } else if(type === 'gameover') {
-                    osc.frequency.value = 110;
-                    gain.gain.setValueAtTime(0.2, now);
-                    osc.start();
-                    osc.stop(now + 0.8);
+    }
+
+    // === TETROMINOLAR ===
+    const TETROMINOS = [
+        { shape: [[1,1,1,1]],           color: '#00e5ff' }, // I - cyan
+        { shape: [[1,1],[1,1]],         color: '#ffe800' }, // O - yellow
+        { shape: [[0,1,0],[1,1,1]],     color: '#cc44ff' }, // T - purple
+        { shape: [[0,1,1],[1,1,0]],     color: '#00e676' }, // S - green
+        { shape: [[1,1,0],[0,1,1]],     color: '#ff4444' }, // Z - red
+        { shape: [[1,0,0],[1,1,1]],     color: '#ff8c00' }, // J - orange
+        { shape: [[0,0,1],[1,1,1]],     color: '#448aff' }  // L - blue
+    ];
+
+    function randomTetro() {
+        const t = TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)];
+        return {
+            shape: t.shape.map(r => [...r]),
+            color: t.color,
+            x: Math.floor((BOARD_WIDTH - t.shape[0].length) / 2),
+            y: 0
+        };
+    }
+
+    // === ÇARPIŞMA ===
+    function collision(shape, ox, oy) {
+        for (let r = 0; r < shape.length; r++)
+            for (let c = 0; c < shape[r].length; c++)
+                if (shape[r][c]) {
+                    const bx = ox + c, by = oy + r;
+                    if (bx < 0 || bx >= BOARD_WIDTH || by >= BOARD_HEIGHT) return true;
+                    if (by >= 0 && board[by][bx]) return true;
                 }
-            } catch(e) {}
-        }
+        return false;
+    }
 
-        const boardCanvas = document.getElementById('boardCanvas');
-        const boardCtx = boardCanvas.getContext('2d');
-        const nextCanvas = document.getElementById('nextCanvas');
-        const nextCtx = nextCanvas.getContext('2d');
-        const scoreSpan = document.getElementById('scoreDisplay');
-        const statusDiv = document.getElementById('gameStatusText');
+    // === GHOST (GÖLGE) ===
+    function getGhostY() {
+        if (!activePiece) return 0;
+        let gy = activePiece.y;
+        while (!collision(activePiece.shape, activePiece.x, gy + 1)) gy++;
+        return gy;
+    }
 
-        const TETROMINOS = [
-            { shape: [[1,1,1,1]], color: '#2ad4e3' },
-            { shape: [[1,1],[1,1]], color: '#f7e476' },
-            { shape: [[0,1,0],[1,1,1]], color: '#ce6ef2' },
-            { shape: [[0,1,1],[1,1,0]], color: '#6fcf97' },
-            { shape: [[1,1,0],[0,1,1]], color: '#e66767' },
-            { shape: [[1,0,0],[1,1,1]], color: '#f0a35e' },
-            { shape: [[0,0,1],[1,1,1]], color: '#5dade2' }
-        ];
-
-        function getRandomTetromino() {
-            const idx = Math.floor(Math.random() * TETROMINOS.length);
-            const original = TETROMINOS[idx];
-            return {
-                shape: original.shape.map(row => [...row]),
-                color: original.color,
-                x: Math.floor((BOARD_WIDTH - original.shape[0].length)/2),
-                y: 0
-            };
-        }
-
-        let nextTetromino = getRandomTetromino();
-        
-        function collision(shape, offsetX, offsetY) {
-            for(let row = 0; row < shape.length; row++) {
-                for(let col = 0; col < shape[0].length; col++) {
-                    if(shape[row][col] !== 0) {
-                        const boardX = offsetX + col;
-                        const boardY = offsetY + row;
-                        if(boardX < 0 || boardX >= BOARD_WIDTH || boardY >= BOARD_HEIGHT || boardY < 0) return true;
-                        if(boardY >= 0 && board[boardY][boardX] !== 0) return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        function mergePiece() {
-            if(!activePiece) return;
-            for(let r=0; r<activePiece.shape.length; r++) {
-                for(let c=0; c<activePiece.shape[0].length; c++) {
-                    if(activePiece.shape[r][c] !== 0) {
-                        const boardX = activePiece.x + c;
-                        const boardY = activePiece.y + r;
-                        if(boardY >= 0 && boardY < BOARD_HEIGHT && boardX >=0 && boardX < BOARD_WIDTH) {
-                            board[boardY][boardX] = activePiece.color;
-                        }
-                    }
-                }
-            }
-            playSound('drop');
-            clearLines();
-            spawnNewPiece();
+    // === HAREKET ===
+    function movePiece(dx, dy) {
+        if (!activePiece || isGameOver) return false;
+        if (!collision(activePiece.shape, activePiece.x + dx, activePiece.y + dy)) {
+            activePiece.x += dx;
+            activePiece.y += dy;
+            if (dx !== 0) playSound('move');
             drawAll();
-        }
-
-        function clearLines() {
-            let linesCleared = 0;
-            for(let row = BOARD_HEIGHT-1; row >= 0; ) {
-                let full = true;
-                for(let col = 0; col < BOARD_WIDTH; col++) {
-                    if(board[row][col] === 0) { full = false; break; }
-                }
-                if(full) {
-                    for(let r = row; r > 0; r--) board[r] = [...board[r-1]];
-                    board[0] = Array(BOARD_WIDTH).fill(0);
-                    linesCleared++;
-                } else { row--; }
-            }
-            if(linesCleared > 0) {
-                playSound('clear');
-                const points = [0, 100, 300, 600, 1000];
-                score += points[Math.min(linesCleared,4)];
-                scoreSpan.innerText = score;
-            }
-        }
-
-        function spawnNewPiece() {
-            if(!nextTetromino) nextTetromino = getRandomTetromino();
-            const newPiece = {
-                shape: nextTetromino.shape.map(row => [...row]),
-                color: nextTetromino.color,
-                x: Math.floor((BOARD_WIDTH - nextTetromino.shape[0].length)/2),
-                y: 0
-            };
-            nextTetromino = getRandomTetromino();
-            
-            if(collision(newPiece.shape, newPiece.x, newPiece.y)) {
-                isGameOver = true;
-                playSound('gameover');
-                if(gameLoopInterval) clearInterval(gameLoopInterval);
-                gameLoopInterval = null;
-                statusDiv.innerText = '💀 OYUN BİTTİ 💀';
-                return false;
-            }
-            activePiece = newPiece;
             return true;
-        }
-
-        function movePiece(dx, dy) {
-            if(!activePiece || isGameOver) return false;
-            const newX = activePiece.x + dx;
-            const newY = activePiece.y + dy;
-            if(!collision(activePiece.shape, newX, newY)) {
-                activePiece.x = newX;
-                activePiece.y = newY;
-                drawAll();
-                return true;
-            } else if(dy === 1) {
-                mergePiece();
-                drawAll();
-            }
-            return false;
-        }
-
-        function rotatePiece() {
-            if(!activePiece || isGameOver) return;
-            const rotated = activePiece.shape[0].map((_, idx) => activePiece.shape.map(row => row[idx]).reverse());
-            if(!collision(rotated, activePiece.x, activePiece.y)) {
-                activePiece.shape = rotated;
-                playSound('rotate');
-                drawAll();
-            }
-        }
-
-        function hardDrop() {
-            if(!activePiece || isGameOver) return;
-            while(!collision(activePiece.shape, activePiece.x, activePiece.y+1)) activePiece.y++;
+        } else if (dy === 1) {
             mergePiece();
+        }
+        return false;
+    }
+
+    function rotatePiece() {
+        if (!activePiece || isGameOver) return;
+        const rot = activePiece.shape[0].map((_, i) =>
+            activePiece.shape.map(row => row[i]).reverse()
+        );
+        // Wall kick
+        let ox = activePiece.x;
+        if (!collision(rot, ox, activePiece.y)) {
+            activePiece.shape = rot;
+            playSound('rotate');
+        } else if (!collision(rot, ox + 1, activePiece.y)) {
+            activePiece.shape = rot;
+            activePiece.x++;
+            playSound('rotate');
+        } else if (!collision(rot, ox - 1, activePiece.y)) {
+            activePiece.shape = rot;
+            activePiece.x--;
+            playSound('rotate');
+        }
+        drawAll();
+    }
+
+    function hardDrop() {
+        if (!activePiece || isGameOver) return;
+        const dist = getGhostY() - activePiece.y;
+        activePiece.y = getGhostY();
+        score += dist * 2; // hard drop bonus
+        updateScore();
+        mergePiece();
+    }
+
+    // === BİRLEŞTİR & TEMİZLE ===
+    function mergePiece() {
+        if (!activePiece) return;
+        for (let r = 0; r < activePiece.shape.length; r++)
+            for (let c = 0; c < activePiece.shape[r].length; c++)
+                if (activePiece.shape[r][c]) {
+                    const bx = activePiece.x + c, by = activePiece.y + r;
+                    if (by >= 0) board[by][bx] = activePiece.color;
+                }
+        playSound('drop');
+        clearLines();
+        spawnPiece();
+        drawAll();
+    }
+
+    function clearLines() {
+        let cleared = 0;
+        for (let r = BOARD_HEIGHT - 1; r >= 0;) {
+            if (board[r].every(c => c !== 0)) {
+                board.splice(r, 1);
+                board.unshift(Array(BOARD_WIDTH).fill(0));
+                cleared++;
+            } else r--;
+        }
+        if (cleared > 0) {
+            const pts = [0, 100, 300, 600, 1000];
+            score += (pts[Math.min(cleared, 4)] * level);
+            totalLines += cleared;
+            const newLevel = Math.floor(totalLines / 10) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                playSound('levelup');
+                restartLoop();
+            }
+            cleared === 4 ? playSound('tetris') : playSound('clear');
+            updateScore();
+        }
+    }
+
+    function updateScore() {
+        document.getElementById('scoreDisplay').textContent = score;
+        document.getElementById('levelDisplay').textContent = level;
+        document.getElementById('linesDisplay').textContent = totalLines;
+    }
+
+    function spawnPiece() {
+        activePiece = {
+            shape: nextTetromino.shape.map(r => [...r]),
+            color: nextTetromino.color,
+            x: Math.floor((BOARD_WIDTH - nextTetromino.shape[0].length) / 2),
+            y: 0
+        };
+        nextTetromino = randomTetro();
+        if (collision(activePiece.shape, activePiece.x, activePiece.y)) {
+            isGameOver = true;
+            playSound('gameover');
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoopInterval = null;
+            document.getElementById('gameStatusText').textContent = '💀 OYUN BİTTİ 💀';
             drawAll();
         }
+    }
 
-        const blockSize = 30;
-        function drawBoard() {
-            boardCtx.clearRect(0,0,300,600);
-            for(let row=0; row<BOARD_HEIGHT; row++) {
-                for(let col=0; col<BOARD_WIDTH; col++) {
-                    const color = board[row][col];
-                    const x = col * blockSize;
-                    const y = row * blockSize;
-                    if(color !== 0) {
-                        boardCtx.fillStyle = color;
-                        boardCtx.fillRect(x, y, blockSize-0.5, blockSize-0.5);
-                        boardCtx.fillStyle = "rgba(255,255,255,0.25)";
-                        boardCtx.fillRect(x+2, y+2, blockSize-5, 5);
-                    } else {
-                        boardCtx.fillStyle = "#11141f";
-                        boardCtx.fillRect(x, y, blockSize-0.5, blockSize-0.5);
-                        boardCtx.strokeStyle = "#253449";
-                        boardCtx.strokeRect(x+0.5, y+0.5, blockSize-1, blockSize-1);
-                    }
-                }
-            }
-            if(activePiece && !isGameOver) {
-                for(let r=0; r<activePiece.shape.length; r++) {
-                    for(let c=0; c<activePiece.shape[0].length; c++) {
-                        if(activePiece.shape[r][c]) {
-                            const x = (activePiece.x + c) * blockSize;
-                            const y = (activePiece.y + r) * blockSize;
-                            boardCtx.fillStyle = activePiece.color;
-                            boardCtx.fillRect(x, y, blockSize-0.5, blockSize-0.5);
-                            boardCtx.fillStyle = "rgba(255,255,200,0.4)";
-                            boardCtx.fillRect(x+2, y+2, blockSize-5, 6);
-                        }
-                    }
-                }
-            }
-            if(isGameOver){
-                boardCtx.globalAlpha = 0.75;
-                boardCtx.fillStyle = "#000000";
-                boardCtx.fillRect(0,0,300,600);
-                boardCtx.globalAlpha = 1;
-                boardCtx.fillStyle = "#ffbb77";
-                boardCtx.font = "bold 20px 'Segoe UI'";
-                boardCtx.fillText("GAME OVER", 70, 280);
-            }
-        }
+    // === ÇİZİM ===
+    function drawBoard() {
+        const bs = blockSize;
+        boardCtx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
 
-        function drawNext() {
-            nextCtx.clearRect(0,0,120,120);
-            nextCtx.fillStyle = "#0b1020";
-            nextCtx.fillRect(0,0,120,120);
-            if(nextTetromino) {
-                const shape = nextTetromino.shape;
-                const color = nextTetromino.color;
-                const blockN = 25;
-                const startX = (120 - (shape[0].length * blockN)) / 2;
-                const startY = (120 - (shape.length * blockN)) / 2;
-                for(let r=0; r<shape.length; r++) {
-                    for(let c=0; c<shape[0].length; c++) {
-                        if(shape[r][c]) {
-                            nextCtx.fillStyle = color;
-                            nextCtx.fillRect(startX + c*blockN, startY + r*blockN, blockN-1, blockN-1);
-                            nextCtx.fillStyle = "rgba(255,255,200,0.4)";
-                            nextCtx.fillRect(startX + c*blockN + 2, startY + r*blockN + 2, blockN-5, 5);
-                        }
-                    }
+        // Izgara arka plan
+        for (let r = 0; r < BOARD_HEIGHT; r++) {
+            for (let c = 0; c < BOARD_WIDTH; c++) {
+                const x = c * bs, y = r * bs;
+                const color = board[r][c];
+                if (color) {
+                    // Dolu blok
+                    boardCtx.fillStyle = color;
+                    boardCtx.fillRect(x, y, bs - 1, bs - 1);
+                    // Parlaklık
+                    boardCtx.fillStyle = 'rgba(255,255,255,0.28)';
+                    boardCtx.fillRect(x + 1, y + 1, bs - 4, 4);
+                    boardCtx.fillRect(x + 1, y + 1, 4, bs - 4);
+                    // Gölge
+                    boardCtx.fillStyle = 'rgba(0,0,0,0.25)';
+                    boardCtx.fillRect(x + 1, y + bs - 4, bs - 2, 3);
+                } else {
+                    boardCtx.fillStyle = '#080e1c';
+                    boardCtx.fillRect(x, y, bs - 1, bs - 1);
+                    boardCtx.strokeStyle = 'rgba(0,180,220,0.08)';
+                    boardCtx.strokeRect(x + 0.5, y + 0.5, bs - 1, bs - 1);
                 }
             }
         }
 
-        function drawAll() {
-            drawBoard();
-            drawNext();
+        // Ghost parça
+        if (activePiece && !isGameOver) {
+            const gy = getGhostY();
+            for (let r = 0; r < activePiece.shape.length; r++)
+                for (let c = 0; c < activePiece.shape[r].length; c++)
+                    if (activePiece.shape[r][c]) {
+                        const x = (activePiece.x + c) * bs;
+                        const y = (gy + r) * bs;
+                        boardCtx.fillStyle = 'rgba(255,255,255,0.1)';
+                        boardCtx.fillRect(x, y, bs - 1, bs - 1);
+                        boardCtx.strokeStyle = 'rgba(255,255,255,0.25)';
+                        boardCtx.strokeRect(x + 0.5, y + 0.5, bs - 2, bs - 2);
+                    }
         }
 
-        function gameTick() {
-            if(!isGameOver && activePiece) movePiece(0, 1);
+        // Aktif parça
+        if (activePiece && !isGameOver) {
+            for (let r = 0; r < activePiece.shape.length; r++)
+                for (let c = 0; c < activePiece.shape[r].length; c++)
+                    if (activePiece.shape[r][c]) {
+                        const x = (activePiece.x + c) * bs;
+                        const y = (activePiece.y + r) * bs;
+                        boardCtx.fillStyle = activePiece.color;
+                        boardCtx.fillRect(x, y, bs - 1, bs - 1);
+                        boardCtx.fillStyle = 'rgba(255,255,255,0.35)';
+                        boardCtx.fillRect(x + 1, y + 1, bs - 4, 4);
+                        boardCtx.fillRect(x + 1, y + 1, 4, bs - 4);
+                        boardCtx.fillStyle = 'rgba(0,0,0,0.2)';
+                        boardCtx.fillRect(x + 1, y + bs - 4, bs - 2, 3);
+                    }
         }
 
-        function startGameLoop() {
-            if(gameLoopInterval) clearInterval(gameLoopInterval);
-            gameLoopInterval = setInterval(() => gameTick(), 360);
+        // Oyun bitti overlay
+        if (isGameOver) {
+            boardCtx.fillStyle = 'rgba(0,0,0,0.72)';
+            boardCtx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
+            boardCtx.fillStyle = '#ff4444';
+            boardCtx.font = `bold ${Math.floor(bs * 0.8)}px 'Orbitron', monospace`;
+            boardCtx.textAlign = 'center';
+            boardCtx.fillText('GAME', boardCanvas.width / 2, boardCanvas.height / 2 - bs * 0.5);
+            boardCtx.fillText('OVER', boardCanvas.width / 2, boardCanvas.height / 2 + bs * 0.6);
+            boardCtx.textAlign = 'left';
         }
+    }
 
-        function restartGame() {
-            if(gameLoopInterval) clearInterval(gameLoopInterval);
-            board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
-            score = 0;
-            isGameOver = false;
-            scoreSpan.innerText = "0";
-            nextTetromino = getRandomTetromino();
-            activePiece = null;
-            spawnNewPiece();
-            statusDiv.innerText = '▶ OYNANIYOR';
-            startGameLoop();
-            drawAll();
-        }
+    function drawNext() {
+        const nw = nextCanvas.width, nh = nextCanvas.height;
+        nextCtx.fillStyle = '#060e1c';
+        nextCtx.fillRect(0, 0, nw, nh);
+        if (!nextTetromino) return;
+        const shape = nextTetromino.shape;
+        const color = nextTetromino.color;
+        const nb = Math.floor(Math.min(nw / (shape[0].length + 1), nh / (shape.length + 1)));
+        const sx = Math.floor((nw - shape[0].length * nb) / 2);
+        const sy = Math.floor((nh - shape.length * nb) / 2);
+        for (let r = 0; r < shape.length; r++)
+            for (let c = 0; c < shape[r].length; c++)
+                if (shape[r][c]) {
+                    const x = sx + c * nb, y = sy + r * nb;
+                    nextCtx.fillStyle = color;
+                    nextCtx.fillRect(x, y, nb - 1, nb - 1);
+                    nextCtx.fillStyle = 'rgba(255,255,255,0.3)';
+                    nextCtx.fillRect(x + 1, y + 1, nb - 3, 3);
+                }
+    }
 
-        function attachControls() {
-            document.getElementById('moveLeft').addEventListener('click',()=>movePiece(-1,0));
-            document.getElementById('moveRight').addEventListener('click',()=>movePiece(1,0));
-            document.getElementById('rotateBtn').addEventListener('click',()=>rotatePiece());
-            document.getElementById('hardDropBtn').addEventListener('click',()=>hardDrop());
-            document.getElementById('restartBtn').addEventListener('click',()=>restartGame());
-            window.addEventListener('keydown', (e)=>{
-                if(e.key === 'ArrowLeft') movePiece(-1,0);
-                else if(e.key === 'ArrowRight') movePiece(1,0);
-                else if(e.key === 'ArrowDown') movePiece(0,1);
-                else if(e.key === 'ArrowUp') rotatePiece();
-                else if(e.key === ' ') { hardDrop(); e.preventDefault();}
-                else if(e.key === 'r') restartGame();
-            });
-            // Herhangi bir tıklamada sesi başlat (iOS için)
-            document.body.addEventListener('click', function once() {
-                initAudio();
-                document.body.removeEventListener('click', once);
-            });
-        }
+    function drawAll() { drawBoard(); drawNext(); }
 
-        function init() {
-            attachControls();
-            restartGame();
-        }
-        init();
-    })();
+    // === OYUN DÖNGÜSÜ ===
+    function getSpeed() { return Math.max(80, 400 - (level - 1) * 35); }
+
+    function gameTick() {
+        if (!isGameOver && activePiece) movePiece(0, 1);
+    }
+
+    function restartLoop() {
+        if (gameLoopInterval) clearInterval(gameLoopInterval);
+        gameLoopInterval = setInterval(gameTick, getSpeed());
+    }
+
+    function restartGame() {
+        if (gameLoopInterval) clearInterval(gameLoopInterval);
+        board = Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(0));
+        score = 0; totalLines = 0; level = 1;
+        isGameOver = false;
+        activePiece = null;
+        nextTetromino = randomTetro();
+        updateScore();
+        document.getElementById('gameStatusText').textContent = '▶ OYNANIYOR';
+        spawnPiece();
+        restartLoop();
+        drawAll();
+    }
+
+    // === KONTROLLER ===
+    function attachControls() {
+        const btn = (id, fn) => document.getElementById(id).addEventListener('click', fn);
+        btn('moveLeft', () => movePiece(-1, 0));
+        btn('moveRight', () => movePiece(1, 0));
+        btn('rotateBtn', () => rotatePiece());
+        btn('hardDropBtn', () => hardDrop());
+        btn('restartBtn', () => restartGame());
+
+        // Klavye
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft')  { e.preventDefault(); movePiece(-1, 0); }
+            if (e.key === 'ArrowRight') { e.preventDefault(); movePiece(1, 0); }
+            if (e.key === 'ArrowDown')  { e.preventDefault(); movePiece(0, 1); }
+            if (e.key === 'ArrowUp')    { e.preventDefault(); rotatePiece(); }
+            if (e.key === ' ')          { e.preventDefault(); hardDrop(); }
+            if (e.key === 'r' || e.key === 'R') restartGame();
+        });
+
+        // Swipe (dokunmatik)
+        let tx = 0, ty = 0, tStart = 0;
+        boardCanvas.addEventListener('touchstart', e => {
+            tx = e.touches[0].clientX;
+            ty = e.touches[0].clientY;
+            tStart = Date.now();
+        }, { passive: true });
+        boardCanvas.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - tx;
+            const dy = e.changedTouches[0].clientY - ty;
+            const dt = Date.now() - tStart;
+            const absx = Math.abs(dx), absy = Math.abs(dy);
+            if (absx < 8 && absy < 8 && dt < 200) { rotatePiece(); return; }
+            if (absx > absy) { dx < 0 ? movePiece(-1, 0) : movePiece(1, 0); }
+            else if (dy > 30) { hardDrop(); }
+        }, { passive: true });
+
+        // Ses aktifleştirme (iOS için ilk dokunuşta)
+        document.body.addEventListener('touchstart', function once() {
+            initAudio();
+            document.body.removeEventListener('touchstart', once);
+        }, { passive: true });
+        document.body.addEventListener('click', function once() {
+            initAudio();
+            document.body.removeEventListener('click', once);
+        });
+    }
+
+    attachControls();
+    restartGame();
+})();
 </script>
 </body>
 </html>

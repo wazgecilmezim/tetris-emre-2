@@ -12,12 +12,14 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Build with Gradle
+      - name: Setup Gradle Wrapper
         run: |
           gradle wrapper --gradle-version 8.2
           chmod +x gradlew
-          ./gradlew :app:bundleRelease --stacktrace
-          
+
+      - name: Build with Gradle
+        run: ./gradlew :app:bundleRelease --no-daemon
+
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:

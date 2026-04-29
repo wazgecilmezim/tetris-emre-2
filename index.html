@@ -2,12 +2,13 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TETRİS - Emre Kaftar</title>
     <style>
         * {
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         body {
@@ -19,76 +20,69 @@
             align-items: center;
             font-family: 'Segoe UI', 'Poppins', 'Tahoma', sans-serif;
             touch-action: manipulation;
+            padding: 12px;
         }
 
         .game-container {
-            background: rgba(10, 20, 40, 0.7);
-            backdrop-filter: blur(2px);
-            border-radius: 56px;
-            padding: 20px 20px 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            border: 1px solid rgba(80, 180, 255, 0.3);
+            background: rgba(10, 20, 40, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 16px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(80, 180, 255, 0.2);
         }
 
-        .tetris-panel {
+        .game-row {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            align-items: flex-start;
-            gap: 20px;
-            padding: 10px;
-        }
-
-        .game-area {
-            text-align: center;
+            gap: 16px;
         }
 
         canvas#boardCanvas {
             background-color: #0a0e1c;
-            border-radius: 24px;
-            box-shadow: 0 12px 28px black;
+            border-radius: 20px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
             width: 100%;
             height: auto;
-            display: block;
-            margin: 0 auto;
         }
 
         .info-panel {
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(8px);
-            border-radius: 40px;
-            padding: 18px 22px;
-            min-width: 160px;
-            border: 1px solid #2c3e66;
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 28px;
+            padding: 16px;
+            flex: 1;
+            min-width: 130px;
         }
 
         .score-box {
-            background: #000000aa;
-            border-radius: 32px;
-            padding: 12px 18px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, #1a1a3e, #0a0a2e);
+            border-radius: 24px;
+            padding: 12px;
             text-align: center;
+            margin-bottom: 16px;
         }
 
         .score-label {
             color: #8ab3ff;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .score-value {
             color: #f2ea7f;
-            font-size: 42px;
+            font-size: 38px;
             font-weight: 800;
-            text-shadow: 0 0 8px #ffb347;
+            text-shadow: 0 0 10px #ffb347;
         }
 
         .next-label {
             color: #a0c4ff;
             text-align: center;
-            font-weight: bold;
-            margin: 15px 0 8px 0;
+            font-size: 12px;
+            margin: 12px 0 8px;
         }
 
         canvas#nextCanvas {
@@ -102,38 +96,41 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 12px;
-            margin-top: 25px;
+            gap: 10px;
+            margin: 16px 0 10px;
         }
 
         .ctrl-btn {
-            background: #1e2a3e;
+            background: linear-gradient(145deg, #2a3a5a, #1a2a4a);
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
-            width: 64px;
-            height: 64px;
-            border-radius: 40px;
-            box-shadow: 0 5px 0 #0a101c;
+            width: 60px;
+            height: 60px;
+            border-radius: 50px;
+            box-shadow: 0 6px 0 #0a101c;
             cursor: pointer;
+            transition: 0.05s linear;
+            touch-action: manipulation;
         }
 
         .ctrl-btn:active {
             transform: translateY(3px);
+            box-shadow: 0 3px 0 #0a101c;
         }
 
         .restart-btn {
-            background: #ff6b4a;
+            background: linear-gradient(145deg, #ff6b4a, #e05530);
             color: white;
-            padding: 10px 26px;
-            border-radius: 100px;
+            padding: 12px 0;
+            border-radius: 50px;
             font-weight: bold;
             border: none;
             font-size: 18px;
-            margin-top: 12px;
             width: 100%;
             cursor: pointer;
+            margin-top: 8px;
         }
 
         .game-status {
@@ -141,9 +138,10 @@
             margin-top: 12px;
             font-weight: bold;
             color: #ffd966;
-            background: #00000077;
+            background: #00000055;
             border-radius: 60px;
-            padding: 6px;
+            padding: 8px;
+            font-size: 14px;
         }
 
         footer {
@@ -156,11 +154,8 @@
 </head>
 <body>
 <div class="game-container">
-    <div class="tetris-panel">
-        <div class="game-area">
-            <canvas id="boardCanvas" width="300" height="600"></canvas>
-        </div>
-
+    <div class="game-row">
+        <canvas id="boardCanvas" width="300" height="600"></canvas>
         <div class="info-panel">
             <div class="score-box">
                 <div class="score-label">🎯 SKOR</div>
@@ -168,7 +163,6 @@
             </div>
             <div class="next-label">🔮 SIRADAKİ</div>
             <canvas id="nextCanvas" width="120" height="120"></canvas>
-
             <div class="control-buttons">
                 <button class="ctrl-btn" id="moveLeft">◀</button>
                 <button class="ctrl-btn" id="moveRight">▶</button>
@@ -177,7 +171,7 @@
             </div>
             <button class="restart-btn" id="restartBtn">🔄 YENİ OYUN</button>
             <div class="game-status" id="gameStatusText">▶ OYNANIYOR</div>
-            <footer>🎮 EMRE KAFTAR TETRİS</footer>
+            <footer>🎮 EMRE KAFTAR TETRİS™</footer>
         </div>
     </div>
 </div>
@@ -191,7 +185,61 @@
         let activePiece = null;
         let gameLoopInterval = null;
         let isGameOver = false;
-        
+
+        // SES EFEKTLERİ (Web Audio API - tamamen yazılım tabanlı, dosya gerektirmez)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            try {
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.00001, now + 0.5);
+                
+                if(type === 'drop') {
+                    osc.frequency.value = 220;
+                    gain.gain.setValueAtTime(0.15, now);
+                    osc.start();
+                    osc.stop(now + 0.2);
+                } else if(type === 'clear') {
+                    osc.frequency.value = 523.25;
+                    gain.gain.setValueAtTime(0.2, now);
+                    osc.start();
+                    osc.stop(now + 0.3);
+                    setTimeout(() => {
+                        const osc2 = audioCtx.createOscillator();
+                        const gain2 = audioCtx.createGain();
+                        osc2.connect(gain2);
+                        gain2.connect(audioCtx.destination);
+                        osc2.frequency.value = 659.25;
+                        gain2.gain.setValueAtTime(0.15, now + 0.15);
+                        gain2.gain.exponentialRampToValueAtTime(0.00001, now + 0.5);
+                        osc2.start();
+                        osc2.stop(now + 0.45);
+                    }, 150);
+                } else if(type === 'rotate') {
+                    osc.frequency.value = 880;
+                    gain.gain.setValueAtTime(0.08, now);
+                    osc.start();
+                    osc.stop(now + 0.1);
+                } else if(type === 'move') {
+                    osc.frequency.value = 440;
+                    gain.gain.setValueAtTime(0.05, now);
+                    osc.start();
+                    osc.stop(now + 0.08);
+                } else if(type === 'gameover') {
+                    osc.frequency.value = 110;
+                    gain.gain.setValueAtTime(0.25, now);
+                    osc.start();
+                    osc.stop(now + 0.8);
+                }
+            } catch(e) { console.log("ses hatası:", e); }
+        }
+
         const boardCanvas = document.getElementById('boardCanvas');
         const boardCtx = boardCanvas.getContext('2d');
         const nextCanvas = document.getElementById('nextCanvas');
@@ -249,6 +297,7 @@
                     }
                 }
             }
+            playSound('drop');
             clearLines();
             spawnNewPiece();
             drawAll();
@@ -268,6 +317,7 @@
                 } else { row--; }
             }
             if(linesCleared > 0) {
+                playSound('clear');
                 const points = [0, 100, 300, 600, 1000];
                 score += points[Math.min(linesCleared,4)];
                 scoreSpan.innerText = score;
@@ -286,6 +336,7 @@
             
             if(collision(newPiece.shape, newPiece.x, newPiece.y)) {
                 isGameOver = true;
+                playSound('gameover');
                 if(gameLoopInterval) clearInterval(gameLoopInterval);
                 gameLoopInterval = null;
                 statusDiv.innerText = '💀 OYUN BİTTİ 💀';
@@ -302,6 +353,7 @@
             if(!collision(activePiece.shape, newX, newY)) {
                 activePiece.x = newX;
                 activePiece.y = newY;
+                if(dx !== 0) playSound('move');
                 drawAll();
                 return true;
             } else if(dy === 1) {
@@ -316,6 +368,7 @@
             const rotated = activePiece.shape[0].map((_, idx) => activePiece.shape.map(row => row[idx]).reverse());
             if(!collision(rotated, activePiece.x, activePiece.y)) {
                 activePiece.shape = rotated;
+                playSound('rotate');
                 drawAll();
             }
         }
@@ -338,8 +391,8 @@
                     if(color !== 0) {
                         boardCtx.fillStyle = color;
                         boardCtx.fillRect(x, y, blockSize-0.5, blockSize-0.5);
-                        boardCtx.fillStyle = "rgba(255,255,255,0.2)";
-                        boardCtx.fillRect(x+2, y+2, blockSize-5, 4);
+                        boardCtx.fillStyle = "rgba(255,255,255,0.25)";
+                        boardCtx.fillRect(x+2, y+2, blockSize-5, 5);
                     } else {
                         boardCtx.fillStyle = "#11141f";
                         boardCtx.fillRect(x, y, blockSize-0.5, blockSize-0.5);
@@ -356,14 +409,14 @@
                             const y = (activePiece.y + r) * blockSize;
                             boardCtx.fillStyle = activePiece.color;
                             boardCtx.fillRect(x, y, blockSize-0.5, blockSize-0.5);
-                            boardCtx.fillStyle = "rgba(255,245,180,0.35)";
-                            boardCtx.fillRect(x+2, y+2, blockSize-5, 5);
+                            boardCtx.fillStyle = "rgba(255,255,200,0.4)";
+                            boardCtx.fillRect(x+2, y+2, blockSize-5, 6);
                         }
                     }
                 }
             }
             if(isGameOver){
-                boardCtx.globalAlpha = 0.7;
+                boardCtx.globalAlpha = 0.75;
                 boardCtx.fillStyle = "#000000";
                 boardCtx.fillRect(0,0,300,600);
                 boardCtx.globalAlpha = 1;
@@ -388,6 +441,8 @@
                         if(shape[r][c]) {
                             nextCtx.fillStyle = color;
                             nextCtx.fillRect(startX + c*blockN, startY + r*blockN, blockN-1, blockN-1);
+                            nextCtx.fillStyle = "rgba(255,255,200,0.4)";
+                            nextCtx.fillRect(startX + c*blockN + 2, startY + r*blockN + 2, blockN-5, 5);
                         }
                     }
                 }
@@ -405,7 +460,7 @@
 
         function startGameLoop() {
             if(gameLoopInterval) clearInterval(gameLoopInterval);
-            gameLoopInterval = setInterval(() => gameTick(), 340);
+            gameLoopInterval = setInterval(() => gameTick(), 360);
         }
 
         function restartGame() {

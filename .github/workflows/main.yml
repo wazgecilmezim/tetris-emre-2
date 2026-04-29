@@ -10,9 +10,16 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      
+      - name: Initialize Android Project
+        run: |
+          gradle help
+          # Bu komut eksik dosyaları GitHub'ın kendi sisteminden tamamlar
+          
       - name: Build with Gradle
         run: |
-          gradle bundleRelease
+          gradle bundleRelease --stacktrace
+          
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:

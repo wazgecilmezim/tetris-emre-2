@@ -5,7 +5,6 @@ plugins {
 android {
     namespace 'com.emre.tetris'
     compileSdk 34
-
     defaultConfig {
         applicationId "com.emre.tetris"
         minSdk 21
@@ -13,16 +12,8 @@ android {
         versionCode 1
         versionName "1.0.0"
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
 }
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
 }

@@ -11,16 +11,17 @@ android {
         minSdk 21
         targetSdk 35
         
-        // HATA ÇÖZÜMÜ: 6 kullanıldığı için burayı 7 yapıyoruz.
+        // Önceki hatayı aşmak için güncellendi
         versionCode 7
-        versionName "1.0.6"
+        versionName "1.0.7" // Takip kolaylığı için 1.0.7 yaptık
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         release {
-            storeFile file("keystore.jks")
+            // GitHub Actions'taki dosya yoluyla eşleşmeli
+            storeFile file("keystore.jks") 
             storePassword System.getenv("STORE_PASSWORD")
             keyAlias System.getenv("KEY_ALIAS")
             keyPassword System.getenv("KEY_PASSWORD")
@@ -29,15 +30,15 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled false // Şimdilik false kalsın ki ClassNotFound hatası riskini azaltalım
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17 // GitHub Actions JDK 17 ile tam uyum için
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
@@ -45,4 +46,5 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // Eğer WebView kullanıyorsan ek bağımlılığa gerek yok, ancak WebView kütüphanelerini güncel tutar
 }

@@ -1,51 +1,8 @@
-plugins {
-    id 'com.android.application'
-}
-
-android {
-    // Paket ismi 'destiniy' olarak sabitlendi.
-    namespace 'com.emre.destiniy'
-    compileSdk 35
-
-    defaultConfig {
-        // Uygulamanın Google Play'deki benzersiz kimliği.
-        applicationId "com.emre.destiniy" 
-        minSdk 21
-        targetSdk 35
-        
-        // HATA ÇÖZÜMÜ: 5 kullanıldığı için burayı 6 yapıyoruz.
-        versionCode 6
-        versionName "1.0.5"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    signingConfigs {
-        release {
-            // Keystore dosyasının proje dizininde olduğundan emin olun.
-            storeFile file("keystore.jks")
-            storePassword System.getenv("STORE_PASSWORD")
-            keyAlias System.getenv("KEY_ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
-        }
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
-
-dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+defaultConfig {
+    applicationId "com.emre.destiniy" 
+    minSdk 21
+    targetSdk 35
+    versionCode 6
+    versionName "1.0.5"
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 }

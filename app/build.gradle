@@ -3,26 +3,26 @@ plugins {
 }
 
 android {
-    // Paket ismini senin istediğin gibi 'destiniy' olarak güncelledik.
+    // Paket ismi 'destiniy' olarak sabitlendi.
     namespace 'com.emre.destiniy'
     compileSdk 35
 
     defaultConfig {
-        // Uygulamanın Google Play'deki benzersiz kimliği. 
-        // Telif sorununu aşmak için 'com.emre.destiniy' yapıldı.
+        // Uygulamanın Google Play'deki benzersiz kimliği.
         applicationId "com.emre.destiniy" 
         minSdk 21
         targetSdk 35
         
-        // Önceki denemelerle çakışmaması için sürümü 4 yaptık.
-        versionCode 4
-        versionName "1.0.3"
+        // HATA ÇÖZÜMÜ: 4 kullanıldığı için burayı 5 yapıyoruz.
+        versionCode 5
+        versionName "1.0.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         release {
+            // Keystore dosyasının proje dizininde olduğundan emin olun.
             storeFile file("keystore.jks")
             storePassword System.getenv("STORE_PASSWORD")
             keyAlias System.getenv("KEY_ALIAS")

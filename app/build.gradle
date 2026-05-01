@@ -3,20 +3,32 @@ plugins {
 }
 
 android {
-    namespace 'com.emre.tetris'
+    // Namespace'i değiştirmek bazı kodlarda hata verebilir, 
+    // ama Google Play'de 'impersonation' (kimliğe bürünme) 
+    // uyarısını tamamen aşmak için ismi Destiny olarak güncelledik.
+    namespace 'com.emre.destiny'
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.emre.tetris"
+        // Uygulamanın benzersiz kimliği. 
+        // Eğer Google hala ret verirse 'tetris' kelimesini buradan da silip 
+        // 'com.emre.destiny' yaparak yeni bir uygulama olarak yüklemelisin.
+        applicationId "com.emre.destiny" 
         minSdk 21
         targetSdk 35
-        versionCode 2
-        versionName "1.0.1"
+        
+        // Hata almamak için sürüm kodunu 3'e yükselttik.
+        versionCode 3
+        versionName "1.0.2"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         release {
+            // Keystore dosyanızın proje dizininde olduğundan emin olun.
             storeFile file("keystore.jks")
+            // Şifreleri sistem değişkenlerinden çekmeye devam ediyor.
             storePassword System.getenv("STORE_PASSWORD")
             keyAlias System.getenv("KEY_ALIAS")
             keyPassword System.getenv("KEY_PASSWORD")
@@ -25,13 +37,22 @@ android {
 
     buildTypes {
         release {
+            // Kod küçültmeyi (minify) şimdilik kapalı bırakıyoruz (sorun çıkmaması için).
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
+    }
+
+    // Java sürüm uyumluluğu
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }

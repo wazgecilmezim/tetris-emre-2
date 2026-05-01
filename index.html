@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TETRİS - Emre Kaftar</title>
+    <title>DESTINY - Emre Kaftar</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap');
 
@@ -29,24 +29,22 @@
         html, body {
             width: 100%;
             height: 100%;
-            overflow: hidden; /* TEK SAYFA - KAYDIRMA YOK */
+            overflow: hidden;
             background: var(--bg);
             font-family: 'Share Tech Mono', monospace;
         }
 
-        /* Arka plan animasyonu */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            background:
+            background: 
                 radial-gradient(ellipse 60% 40% at 20% 20%, rgba(0,212,255,0.07) 0%, transparent 70%),
                 radial-gradient(ellipse 50% 50% at 80% 80%, rgba(180,79,255,0.07) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* ANA YAPI: flex column, tam ekran */
         #app {
             position: fixed;
             inset: 0;
@@ -54,683 +52,269 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: env(safe-area-inset-top, 6px) env(safe-area-inset-right, 6px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 6px);
-            padding-top: max(env(safe-area-inset-top), 6px);
-            padding-bottom: max(env(safe-area-inset-bottom), 6px);
+            padding: env(safe-area-inset-top, 10px) 10px env(safe-area-inset-bottom, 10px) 10px;
             z-index: 1;
         }
 
-        /* HEADER */
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            max-width: 360px;
-            padding: 0 4px;
-            flex-shrink: 0;
+            max-width: 400px;
         }
 
         .logo {
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(13px, 3.5vw, 18px);
+            font-size: clamp(16px, 5vw, 22px);
             font-weight: 900;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: none;
-        }
-
-        .score-block {
-            text-align: right;
-        }
-
-        .score-lbl {
-            font-size: 9px;
-            color: var(--neon-blue);
-            letter-spacing: 2px;
-            opacity: 0.8;
         }
 
         .score-val {
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(18px, 5vw, 28px);
-            font-weight: 900;
+            font-size: 24px;
             color: var(--neon-yellow);
-            line-height: 1;
-            text-shadow: 0 0 12px rgba(255,232,0,0.6);
+            text-shadow: 0 0 10px rgba(255,232,0,0.5);
         }
 
-        /* ORTA ALAN: board + next yan yana */
         .mid-row {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 15px;
             flex: 1;
             min-height: 0;
             width: 100%;
-            max-width: 360px;
-        }
-
-        /* OYUN TAHTASI */
-        .board-wrap {
-            flex-shrink: 0;
-            position: relative;
         }
 
         #boardCanvas {
-            display: block;
-            border-radius: 10px;
-            box-shadow:
-                0 0 0 1px rgba(0,212,255,0.3),
-                0 0 24px rgba(0,212,255,0.12),
-                inset 0 0 30px rgba(0,0,0,0.6);
-            image-rendering: pixelated;
+            background: rgba(0,0,0,0.4);
+            border: 2px solid rgba(0,212,255,0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* SAĞ PANEL: next + level/status */
         .side-panel {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            align-items: center;
-            justify-content: flex-start;
-            flex-shrink: 0;
+            gap: 10px;
         }
 
         .mini-card {
             background: var(--panel);
-            border: 1px solid rgba(0,212,255,0.15);
-            border-radius: 10px;
-            padding: 6px 8px;
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 8px;
+            padding: 5px;
             text-align: center;
-            width: 72px;
+            width: 70px;
         }
 
-        .mini-lbl {
-            font-size: 8px;
-            color: var(--neon-blue);
-            letter-spacing: 1.5px;
-            margin-bottom: 4px;
-            opacity: 0.8;
-        }
+        .mini-lbl { font-size: 8px; color: var(--neon-blue); margin-bottom: 3px; }
 
-        #nextCanvas {
-            border-radius: 6px;
-            background: #060e1c;
-        }
-
-        .level-val {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
-            font-weight: 900;
-            color: var(--neon-purple);
-            text-shadow: 0 0 10px rgba(180,79,255,0.6);
-        }
-
-        .lines-val {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            color: #6fcf97;
-        }
-
-        /* STATUS BAR */
-        .status-bar {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: var(--neon-yellow);
-            opacity: 0.85;
-            text-align: center;
-            flex-shrink: 0;
-            height: 14px;
-        }
-
-        /* KONTROL BUTONLARI */
         .controls {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
+            gap: 8px;
             width: 100%;
-            max-width: 360px;
-            flex-shrink: 0;
+            max-width: 400px;
+            padding-bottom: 5px;
         }
 
         .ctrl-btn {
-            background: linear-gradient(160deg, #162240, var(--btn-bg));
-            border: 1px solid rgba(0,212,255,0.2);
+            background: var(--btn-bg);
+            border: 1px solid rgba(0,212,255,0.3);
             border-bottom: 3px solid var(--btn-shadow);
-            color: #c8e6ff;
-            font-size: clamp(18px, 5vw, 24px);
-            border-radius: 12px;
+            color: white;
+            border-radius: 10px;
+            aspect-ratio: 1;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: transform 0.05s, box-shadow 0.05s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 6px rgba(0,212,255,0.06);
-            -webkit-tap-highlight-color: transparent;
-            /* height otomatik hesaplanacak */
-            aspect-ratio: 1;
         }
 
-        .ctrl-btn:active {
-            transform: translateY(2px);
-            border-bottom-width: 1px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            background: linear-gradient(160deg, #1e3060, #0f1a30);
-        }
+        .ctrl-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
 
-        .restart-btn {
-            background: linear-gradient(135deg, #c1440e, #e85522);
-            border: 1px solid rgba(255,100,50,0.4);
-            border-bottom: 3px solid #6a1a00;
-            color: #fff;
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(10px, 3vw, 13px);
-            font-weight: 700;
-            letter-spacing: 1px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            cursor: pointer;
-            grid-column: span 1;
-            aspect-ratio: 1;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+        .status-bar { color: var(--neon-yellow); font-size: 12px; height: 20px; }
 
-        .restart-btn:active {
-            transform: translateY(2px);
-            border-bottom-width: 1px;
-        }
-
-        footer {
-            font-size: 8px;
-            color: rgba(100,140,180,0.5);
-            letter-spacing: 2px;
-            text-align: center;
-            flex-shrink: 0;
-        }
+        footer { font-size: 9px; color: rgba(255,255,255,0.3); margin-top: 5px; }
     </style>
 </head>
 <body>
 <div id="app">
-
-    <!-- HEADER -->
     <div class="header">
-        <div class="logo">TETRIS</div>
+        <div class="logo">DESTINY</div>
         <div class="score-block">
-            <div class="score-lbl">SKOR</div>
             <div class="score-val" id="scoreDisplay">0</div>
         </div>
     </div>
 
-    <!-- ORTA -->
     <div class="mid-row">
-        <div class="board-wrap">
-            <canvas id="boardCanvas"></canvas>
-        </div>
+        <canvas id="boardCanvas"></canvas>
         <div class="side-panel">
             <div class="mini-card">
-                <div class="mini-lbl">SONRAKİ</div>
-                <canvas id="nextCanvas" width="56" height="56"></canvas>
+                <div class="mini-lbl">NEXT</div>
+                <canvas id="nextCanvas" width="50" height="50"></canvas>
             </div>
             <div class="mini-card">
-                <div class="mini-lbl">SEVİYE</div>
-                <div class="level-val" id="levelDisplay">1</div>
-            </div>
-            <div class="mini-card">
-                <div class="mini-lbl">SATIR</div>
-                <div class="lines-val" id="linesDisplay">0</div>
+                <div class="mini-lbl">LEVEL</div>
+                <div id="levelDisplay" style="color:var(--neon-purple); font-weight:bold;">1</div>
             </div>
         </div>
     </div>
 
-    <!-- STATUS -->
-    <div class="status-bar" id="gameStatusText">▶ OYNANIYOR</div>
+    <div class="status-bar" id="gameStatusText">ACTIVE SYSTEM</div>
 
-    <!-- KONTROLLER -->
     <div class="controls">
-        <button class="ctrl-btn" id="moveLeft" aria-label="Sol">◀</button>
-        <button class="ctrl-btn" id="rotateBtn" aria-label="Döndür">↻</button>
-        <button class="ctrl-btn" id="moveRight" aria-label="Sağ">▶</button>
-        <button class="ctrl-btn" id="hardDropBtn" aria-label="Hızlı düş">⬇</button>
-        <button class="restart-btn" id="restartBtn" aria-label="Yeniden">↺</button>
+        <button class="ctrl-btn" id="moveLeft">◀</button>
+        <button class="ctrl-btn" id="rotateBtn">↻</button>
+        <button class="ctrl-btn" id="moveRight">▶</button>
+        <button class="ctrl-btn" id="hardDropBtn">⬇</button>
+        <button class="ctrl-btn" id="restartBtn" style="background: #6a1a00;">↺</button>
     </div>
 
-    <footer>EMRE KAFTAR TETRİS™</footer>
+    <footer>© 2026 EMRE KAFTAR - DESTINY CORE</footer>
 </div>
 
 <script>
 (function(){
     const BOARD_WIDTH = 10;
     const BOARD_HEIGHT = 20;
-
-    // === BOYUTLARI DİNAMİK HESAPLA ===
-    function calcSizes() {
-        const appEl = document.getElementById('app');
-        const appH = appEl.clientHeight;
-        const appW = appEl.clientWidth;
-
-        // Dikey: header ~36, status ~20, controls ~(btn*1 + gap), footer ~16, paddings
-        // Yatay: board + side(72+8)
-        const sideW = 80; // yan panel + gap
-        const maxBoardW = Math.min(appW - sideW - 24, 300);
-
-        // Her blok için: board genişliği / 10
-        let bSize = Math.floor(maxBoardW / BOARD_WIDTH);
-
-        // Dikey kısıt: kullanılabilir yükseklik hesapla
-        const headerH = 40;
-        const statusH = 20;
-        const ctrlH = Math.min(Math.floor((appW - 24) / 5), 56);
-        const footerH = 16;
-        const gaps = 12 * 4;
-        const availH = appH - headerH - statusH - ctrlH - footerH - gaps;
-        const maxBSize = Math.floor(availH / BOARD_HEIGHT);
-
-        bSize = Math.min(bSize, maxBSize, 28);
-        bSize = Math.max(bSize, 18);
-        return bSize;
-    }
-
-    let blockSize = calcSizes();
+    let blockSize = 0;
+    
     const boardCanvas = document.getElementById('boardCanvas');
     const boardCtx = boardCanvas.getContext('2d');
     const nextCanvas = document.getElementById('nextCanvas');
     const nextCtx = nextCanvas.getContext('2d');
 
-    function resizeCanvas() {
-        blockSize = calcSizes();
+    function resize() {
+        const availH = document.getElementById('app').clientHeight - 200;
+        const availW = document.getElementById('app').clientWidth - 100;
+        blockSize = Math.floor(Math.min(availH / BOARD_HEIGHT, availW / BOARD_WIDTH, 25));
         boardCanvas.width = BOARD_WIDTH * blockSize;
         boardCanvas.height = BOARD_HEIGHT * blockSize;
+        drawAll();
     }
-    resizeCanvas();
-    window.addEventListener('resize', () => { resizeCanvas(); drawAll(); });
 
-    // === OYUN STATE ===
     let board = Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(0));
-    let score = 0;
-    let totalLines = 0;
-    let level = 1;
-    let activePiece = null;
-    let nextTetromino = null;
-    let gameLoopInterval = null;
-    let isGameOver = false;
+    let score = 0, level = 1, totalLines = 0, isGameOver = false;
+    let activePiece = null, nextTetromino = null, gameLoop = null;
 
-    // === SES ===
-    let audioCtx = null;
-    function initAudio() {
-        if (audioCtx) return;
-        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
-    }
-    function beep(freq, duration, vol, type) {
-        if (!audioCtx) return;
-        try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = type || 'sine';
-            osc.frequency.value = freq;
-            gain.gain.setValueAtTime(vol || 0.12, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-            osc.start(audioCtx.currentTime);
-            osc.stop(audioCtx.currentTime + duration);
-        } catch(e) {}
-    }
-    function playSound(type) {
-        if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-        if (type === 'move') {
-            beep(330, 0.05, 0.06, 'square');
-        } else if (type === 'rotate') {
-            beep(660, 0.07, 0.07, 'sine');
-            setTimeout(() => beep(880, 0.05, 0.05, 'sine'), 50);
-        } else if (type === 'drop') {
-            beep(180, 0.1, 0.1, 'square');
-            setTimeout(() => beep(120, 0.15, 0.08, 'square'), 80);
-        } else if (type === 'clear') {
-            // Artan melodi
-            [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => beep(f, 0.15, 0.1, 'sine'), i * 60));
-        } else if (type === 'tetris') {
-            // Tetris (4 satır) için özel ses
-            [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => beep(f, 0.18, 0.13, 'triangle'), i * 55));
-        } else if (type === 'levelup') {
-            [440, 554, 659, 880].forEach((f, i) => setTimeout(() => beep(f, 0.12, 0.1, 'sine'), i * 70));
-        } else if (type === 'gameover') {
-            [440, 392, 349, 294, 220].forEach((f, i) => setTimeout(() => beep(f, 0.25, 0.15, 'sawtooth'), i * 120));
-        }
-    }
-
-    // === TETROMINOLAR ===
-    const TETROMINOS = [
-        { shape: [[1,1,1,1]],           color: '#00e5ff' }, // I - cyan
-        { shape: [[1,1],[1,1]],         color: '#ffe800' }, // O - yellow
-        { shape: [[0,1,0],[1,1,1]],     color: '#cc44ff' }, // T - purple
-        { shape: [[0,1,1],[1,1,0]],     color: '#00e676' }, // S - green
-        { shape: [[1,1,0],[0,1,1]],     color: '#ff4444' }, // Z - red
-        { shape: [[1,0,0],[1,1,1]],     color: '#ff8c00' }, // J - orange
-        { shape: [[0,0,1],[1,1,1]],     color: '#448aff' }  // L - blue
+    const COLORS = [null, '#00d4ff', '#ffe800', '#b44fff', '#00e676', '#ff4444', '#ff8c00', '#448aff'];
+    const SHAPES = [
+        [],
+        [[1,1,1,1]], [[1,1],[1,1]], [[0,1,0],[1,1,1]], 
+        [[0,1,1],[1,1,0]], [[1,1,0],[0,1,1]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]]
     ];
 
-    function randomTetro() {
-        const t = TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)];
-        return {
-            shape: t.shape.map(r => [...r]),
-            color: t.color,
-            x: Math.floor((BOARD_WIDTH - t.shape[0].length) / 2),
-            y: 0
-        };
+    function createPiece(id) {
+        return { shape: SHAPES[id], color: COLORS[id], x: 3, y: 0 };
     }
 
-    // === ÇARPIŞMA ===
-    function collision(shape, ox, oy) {
-        for (let r = 0; r < shape.length; r++)
-            for (let c = 0; c < shape[r].length; c++)
-                if (shape[r][c]) {
-                    const bx = ox + c, by = oy + r;
-                    if (bx < 0 || bx >= BOARD_WIDTH || by >= BOARD_HEIGHT) return true;
-                    if (by >= 0 && board[by][bx]) return true;
+    function drawAll() {
+        boardCtx.clearRect(0,0,boardCanvas.width, boardCanvas.height);
+        board.forEach((row, y) => {
+            row.forEach((v, x) => {
+                if(v) drawBlock(boardCtx, x, y, v);
+            });
+        });
+        if(activePiece) {
+            activePiece.shape.forEach((row, y) => {
+                row.forEach((v, x) => {
+                    if(v) drawBlock(boardCtx, activePiece.x + x, activePiece.y + y, activePiece.color);
+                });
+            });
+        }
+    }
+
+    function drawBlock(ctx, x, y, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x*blockSize, y*blockSize, blockSize-1, blockSize-1);
+    }
+
+    function collision(nx, ny, shape) {
+        for(let y=0; y<shape.length; y++) {
+            for(let x=0; x<shape[y].length; x++) {
+                if(shape[y][x]) {
+                    let bx = nx + x, by = ny + y;
+                    if(bx < 0 || bx >= BOARD_WIDTH || by >= BOARD_HEIGHT || (by>=0 && board[by][bx])) return true;
                 }
+            }
+        }
         return false;
     }
 
-    // === GHOST (GÖLGE) ===
-    function getGhostY() {
-        if (!activePiece) return 0;
-        let gy = activePiece.y;
-        while (!collision(activePiece.shape, activePiece.x, gy + 1)) gy++;
-        return gy;
-    }
-
-    // === HAREKET ===
-    function movePiece(dx, dy) {
-        if (!activePiece || isGameOver) return false;
-        if (!collision(activePiece.shape, activePiece.x + dx, activePiece.y + dy)) {
-            activePiece.x += dx;
-            activePiece.y += dy;
-            if (dx !== 0) playSound('move');
+    function move(dx, dy) {
+        if(!collision(activePiece.x + dx, activePiece.y + dy, activePiece.shape)) {
+            activePiece.x += dx; activePiece.y += dy;
             drawAll();
             return true;
-        } else if (dy === 1) {
-            mergePiece();
         }
+        if(dy > 0) lock();
         return false;
     }
 
-    function rotatePiece() {
-        if (!activePiece || isGameOver) return;
-        const rot = activePiece.shape[0].map((_, i) =>
-            activePiece.shape.map(row => row[i]).reverse()
-        );
-        // Wall kick
-        let ox = activePiece.x;
-        if (!collision(rot, ox, activePiece.y)) {
-            activePiece.shape = rot;
-            playSound('rotate');
-        } else if (!collision(rot, ox + 1, activePiece.y)) {
-            activePiece.shape = rot;
-            activePiece.x++;
-            playSound('rotate');
-        } else if (!collision(rot, ox - 1, activePiece.y)) {
-            activePiece.shape = rot;
-            activePiece.x--;
-            playSound('rotate');
-        }
-        drawAll();
-    }
-
-    function hardDrop() {
-        if (!activePiece || isGameOver) return;
-        const dist = getGhostY() - activePiece.y;
-        activePiece.y = getGhostY();
-        score += dist * 2; // hard drop bonus
-        updateScore();
-        mergePiece();
-    }
-
-    // === BİRLEŞTİR & TEMİZLE ===
-    function mergePiece() {
-        if (!activePiece) return;
-        for (let r = 0; r < activePiece.shape.length; r++)
-            for (let c = 0; c < activePiece.shape[r].length; c++)
-                if (activePiece.shape[r][c]) {
-                    const bx = activePiece.x + c, by = activePiece.y + r;
-                    if (by >= 0) board[by][bx] = activePiece.color;
+    function lock() {
+        activePiece.shape.forEach((row, y) => {
+            row.forEach((v, x) => {
+                if(v) {
+                    let by = activePiece.y + y;
+                    if(by < 0) isGameOver = true;
+                    else board[by][activePiece.x + x] = activePiece.color;
                 }
-        playSound('drop');
+            });
+        });
         clearLines();
-        spawnPiece();
-        drawAll();
+        if(isGameOver) {
+            document.getElementById('gameStatusText').textContent = "CORE FAILURE - OVER";
+            clearInterval(gameLoop);
+        } else {
+            spawn();
+        }
     }
 
     function clearLines() {
-        let cleared = 0;
-        for (let r = BOARD_HEIGHT - 1; r >= 0;) {
-            if (board[r].every(c => c !== 0)) {
-                board.splice(r, 1);
+        let lines = 0;
+        for(let y = BOARD_HEIGHT-1; y>=0; y--) {
+            if(board[y].every(v => v !== 0)) {
+                board.splice(y, 1);
                 board.unshift(Array(BOARD_WIDTH).fill(0));
-                cleared++;
-            } else r--;
-        }
-        if (cleared > 0) {
-            const pts = [0, 100, 300, 600, 1000];
-            score += (pts[Math.min(cleared, 4)] * level);
-            totalLines += cleared;
-            const newLevel = Math.floor(totalLines / 10) + 1;
-            if (newLevel > level) {
-                level = newLevel;
-                playSound('levelup');
-                restartLoop();
-            }
-            cleared === 4 ? playSound('tetris') : playSound('clear');
-            updateScore();
-        }
-    }
-
-    function updateScore() {
-        document.getElementById('scoreDisplay').textContent = score;
-        document.getElementById('levelDisplay').textContent = level;
-        document.getElementById('linesDisplay').textContent = totalLines;
-    }
-
-    function spawnPiece() {
-        activePiece = {
-            shape: nextTetromino.shape.map(r => [...r]),
-            color: nextTetromino.color,
-            x: Math.floor((BOARD_WIDTH - nextTetromino.shape[0].length) / 2),
-            y: 0
-        };
-        nextTetromino = randomTetro();
-        if (collision(activePiece.shape, activePiece.x, activePiece.y)) {
-            isGameOver = true;
-            playSound('gameover');
-            if (gameLoopInterval) clearInterval(gameLoopInterval);
-            gameLoopInterval = null;
-            document.getElementById('gameStatusText').textContent = '💀 OYUN BİTTİ 💀';
-            drawAll();
-        }
-    }
-
-    // === ÇİZİM ===
-    function drawBoard() {
-        const bs = blockSize;
-        boardCtx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
-
-        // Izgara arka plan
-        for (let r = 0; r < BOARD_HEIGHT; r++) {
-            for (let c = 0; c < BOARD_WIDTH; c++) {
-                const x = c * bs, y = r * bs;
-                const color = board[r][c];
-                if (color) {
-                    // Dolu blok
-                    boardCtx.fillStyle = color;
-                    boardCtx.fillRect(x, y, bs - 1, bs - 1);
-                    // Parlaklık
-                    boardCtx.fillStyle = 'rgba(255,255,255,0.28)';
-                    boardCtx.fillRect(x + 1, y + 1, bs - 4, 4);
-                    boardCtx.fillRect(x + 1, y + 1, 4, bs - 4);
-                    // Gölge
-                    boardCtx.fillStyle = 'rgba(0,0,0,0.25)';
-                    boardCtx.fillRect(x + 1, y + bs - 4, bs - 2, 3);
-                } else {
-                    boardCtx.fillStyle = '#080e1c';
-                    boardCtx.fillRect(x, y, bs - 1, bs - 1);
-                    boardCtx.strokeStyle = 'rgba(0,180,220,0.08)';
-                    boardCtx.strokeRect(x + 0.5, y + 0.5, bs - 1, bs - 1);
-                }
+                lines++; y++;
             }
         }
-
-        // Ghost parça
-        if (activePiece && !isGameOver) {
-            const gy = getGhostY();
-            for (let r = 0; r < activePiece.shape.length; r++)
-                for (let c = 0; c < activePiece.shape[r].length; c++)
-                    if (activePiece.shape[r][c]) {
-                        const x = (activePiece.x + c) * bs;
-                        const y = (gy + r) * bs;
-                        boardCtx.fillStyle = 'rgba(255,255,255,0.1)';
-                        boardCtx.fillRect(x, y, bs - 1, bs - 1);
-                        boardCtx.strokeStyle = 'rgba(255,255,255,0.25)';
-                        boardCtx.strokeRect(x + 0.5, y + 0.5, bs - 2, bs - 2);
-                    }
-        }
-
-        // Aktif parça
-        if (activePiece && !isGameOver) {
-            for (let r = 0; r < activePiece.shape.length; r++)
-                for (let c = 0; c < activePiece.shape[r].length; c++)
-                    if (activePiece.shape[r][c]) {
-                        const x = (activePiece.x + c) * bs;
-                        const y = (activePiece.y + r) * bs;
-                        boardCtx.fillStyle = activePiece.color;
-                        boardCtx.fillRect(x, y, bs - 1, bs - 1);
-                        boardCtx.fillStyle = 'rgba(255,255,255,0.35)';
-                        boardCtx.fillRect(x + 1, y + 1, bs - 4, 4);
-                        boardCtx.fillRect(x + 1, y + 1, 4, bs - 4);
-                        boardCtx.fillStyle = 'rgba(0,0,0,0.2)';
-                        boardCtx.fillRect(x + 1, y + bs - 4, bs - 2, 3);
-                    }
-        }
-
-        // Oyun bitti overlay
-        if (isGameOver) {
-            boardCtx.fillStyle = 'rgba(0,0,0,0.72)';
-            boardCtx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
-            boardCtx.fillStyle = '#ff4444';
-            boardCtx.font = `bold ${Math.floor(bs * 0.8)}px 'Orbitron', monospace`;
-            boardCtx.textAlign = 'center';
-            boardCtx.fillText('GAME', boardCanvas.width / 2, boardCanvas.height / 2 - bs * 0.5);
-            boardCtx.fillText('OVER', boardCanvas.width / 2, boardCanvas.height / 2 + bs * 0.6);
-            boardCtx.textAlign = 'left';
+        if(lines > 0) {
+            score += lines * 100 * level;
+            document.getElementById('scoreDisplay').textContent = score;
         }
     }
 
-    function drawNext() {
-        const nw = nextCanvas.width, nh = nextCanvas.height;
-        nextCtx.fillStyle = '#060e1c';
-        nextCtx.fillRect(0, 0, nw, nh);
-        if (!nextTetromino) return;
-        const shape = nextTetromino.shape;
-        const color = nextTetromino.color;
-        const nb = Math.floor(Math.min(nw / (shape[0].length + 1), nh / (shape.length + 1)));
-        const sx = Math.floor((nw - shape[0].length * nb) / 2);
-        const sy = Math.floor((nh - shape.length * nb) / 2);
-        for (let r = 0; r < shape.length; r++)
-            for (let c = 0; c < shape[r].length; c++)
-                if (shape[r][c]) {
-                    const x = sx + c * nb, y = sy + r * nb;
-                    nextCtx.fillStyle = color;
-                    nextCtx.fillRect(x, y, nb - 1, nb - 1);
-                    nextCtx.fillStyle = 'rgba(255,255,255,0.3)';
-                    nextCtx.fillRect(x + 1, y + 1, nb - 3, 3);
-                }
-    }
-
-    function drawAll() { drawBoard(); drawNext(); }
-
-    // === OYUN DÖNGÜSÜ ===
-    function getSpeed() { return Math.max(80, 400 - (level - 1) * 35); }
-
-    function gameTick() {
-        if (!isGameOver && activePiece) movePiece(0, 1);
-    }
-
-    function restartLoop() {
-        if (gameLoopInterval) clearInterval(gameLoopInterval);
-        gameLoopInterval = setInterval(gameTick, getSpeed());
-    }
-
-    function restartGame() {
-        if (gameLoopInterval) clearInterval(gameLoopInterval);
-        board = Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(0));
-        score = 0; totalLines = 0; level = 1;
-        isGameOver = false;
-        activePiece = null;
-        nextTetromino = randomTetro();
-        updateScore();
-        document.getElementById('gameStatusText').textContent = '▶ OYNANIYOR';
-        spawnPiece();
-        restartLoop();
+    function spawn() {
+        activePiece = nextTetromino || createPiece(Math.floor(Math.random()*7)+1);
+        nextTetromino = createPiece(Math.floor(Math.random()*7)+1);
+        if(collision(activePiece.x, activePiece.y, activePiece.shape)) isGameOver = true;
         drawAll();
     }
 
-    // === KONTROLLER ===
-    function attachControls() {
-        const btn = (id, fn) => document.getElementById(id).addEventListener('click', fn);
-        btn('moveLeft', () => movePiece(-1, 0));
-        btn('moveRight', () => movePiece(1, 0));
-        btn('rotateBtn', () => rotatePiece());
-        btn('hardDropBtn', () => hardDrop());
-        btn('restartBtn', () => restartGame());
-
-        // Klavye
-        window.addEventListener('keydown', e => {
-            if (e.key === 'ArrowLeft')  { e.preventDefault(); movePiece(-1, 0); }
-            if (e.key === 'ArrowRight') { e.preventDefault(); movePiece(1, 0); }
-            if (e.key === 'ArrowDown')  { e.preventDefault(); movePiece(0, 1); }
-            if (e.key === 'ArrowUp')    { e.preventDefault(); rotatePiece(); }
-            if (e.key === ' ')          { e.preventDefault(); hardDrop(); }
-            if (e.key === 'r' || e.key === 'R') restartGame();
-        });
-
-        // Swipe (dokunmatik)
-        let tx = 0, ty = 0, tStart = 0;
-        boardCanvas.addEventListener('touchstart', e => {
-            tx = e.touches[0].clientX;
-            ty = e.touches[0].clientY;
-            tStart = Date.now();
-        }, { passive: true });
-        boardCanvas.addEventListener('touchend', e => {
-            const dx = e.changedTouches[0].clientX - tx;
-            const dy = e.changedTouches[0].clientY - ty;
-            const dt = Date.now() - tStart;
-            const absx = Math.abs(dx), absy = Math.abs(dy);
-            if (absx < 8 && absy < 8 && dt < 200) { rotatePiece(); return; }
-            if (absx > absy) { dx < 0 ? movePiece(-1, 0) : movePiece(1, 0); }
-            else if (dy > 30) { hardDrop(); }
-        }, { passive: true });
-
-        // Ses aktifleştirme (iOS için ilk dokunuşta)
-        document.body.addEventListener('touchstart', function once() {
-            initAudio();
-            document.body.removeEventListener('touchstart', once);
-        }, { passive: true });
-        document.body.addEventListener('click', function once() {
-            initAudio();
-            document.body.removeEventListener('click', once);
-        });
+    function rotate() {
+        const r = activePiece.shape[0].map((_, i) => activePiece.shape.map(row => row[i]).reverse());
+        if(!collision(activePiece.x, activePiece.y, r)) activePiece.shape = r;
+        drawAll();
     }
 
-    attachControls();
-    restartGame();
+    document.getElementById('moveLeft').onclick = () => move(-1, 0);
+    document.getElementById('moveRight').onclick = () => move(1, 0);
+    document.getElementById('rotateBtn').onclick = () => rotate();
+    document.getElementById('hardDropBtn').onclick = () => move(0, 1);
+    document.getElementById('restartBtn').onclick = () => location.reload();
+
+    window.addEventListener('resize', resize);
+    resize();
+    spawn();
+    gameLoop = setInterval(() => move(0, 1), 800);
 })();
 </script>
 </body>

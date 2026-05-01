@@ -3,32 +3,27 @@ plugins {
 }
 
 android {
-    // Namespace'i değiştirmek bazı kodlarda hata verebilir, 
-    // ama Google Play'de 'impersonation' (kimliğe bürünme) 
-    // uyarısını tamamen aşmak için ismi Destiny olarak güncelledik.
-    namespace 'com.emre.destiny'
+    // Paket ismini senin istediğin gibi 'destiniy' olarak güncelledik.
+    namespace 'com.emre.destiniy'
     compileSdk 35
 
     defaultConfig {
-        // Uygulamanın benzersiz kimliği. 
-        // Eğer Google hala ret verirse 'tetris' kelimesini buradan da silip 
-        // 'com.emre.destiny' yaparak yeni bir uygulama olarak yüklemelisin.
-        applicationId "com.emre.destiny" 
+        // Uygulamanın Google Play'deki benzersiz kimliği. 
+        // Telif sorununu aşmak için 'com.emre.destiniy' yapıldı.
+        applicationId "com.emre.destiniy" 
         minSdk 21
         targetSdk 35
         
-        // Hata almamak için sürüm kodunu 3'e yükselttik.
-        versionCode 3
-        versionName "1.0.2"
+        // Önceki denemelerle çakışmaması için sürümü 4 yaptık.
+        versionCode 4
+        versionName "1.0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         release {
-            // Keystore dosyanızın proje dizininde olduğundan emin olun.
             storeFile file("keystore.jks")
-            // Şifreleri sistem değişkenlerinden çekmeye devam ediyor.
             storePassword System.getenv("STORE_PASSWORD")
             keyAlias System.getenv("KEY_ALIAS")
             keyPassword System.getenv("KEY_PASSWORD")
@@ -37,14 +32,12 @@ android {
 
     buildTypes {
         release {
-            // Kod küçültmeyi (minify) şimdilik kapalı bırakıyoruz (sorun çıkmaması için).
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
     }
 
-    // Java sürüm uyumluluğu
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

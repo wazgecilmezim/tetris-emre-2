@@ -11,9 +11,9 @@ android {
         minSdk 21
         targetSdk 35
         
-        // Önceki 5 sürümü reddedildiği için burası 6 kalmalı
-        versionCode 6
-        versionName "1.0.5"
+        // HATA ÇÖZÜMÜ: 6 kullanıldığı için burayı 7 yapıyoruz.
+        versionCode 7
+        versionName "1.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
